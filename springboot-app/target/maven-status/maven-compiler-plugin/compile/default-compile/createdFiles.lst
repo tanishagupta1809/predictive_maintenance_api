@@ -1,0 +1,5 @@
+com/example/demo/DemoApplication.class
+com/example/demo/repository/PredictionRepository.class
+com/example/demo/model/Prediction.class
+com/example/demo/controller/MainController.class
+com/example/demo/service/PredictionService.class
