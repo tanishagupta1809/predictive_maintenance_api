@@ -16,6 +16,14 @@ public class MainController {
     private List<String> history = new ArrayList<>();
     private List<Double> confidenceList = new ArrayList<>();
 
+    /**
+     * Escape JSON string for safe embedding in HTML attributes
+     */
+    private String escapeJsonForHtml(String json) {
+        if (json == null) return "";
+        return json.replace("\"", "&quot;").replace("<", "&lt;").replace(">", "&gt;");
+    }
+
     @GetMapping("/")
     public String loginPage() {
         return "login";
@@ -49,33 +57,40 @@ public class MainController {
     ) {
 
         try {
-            String json = String.format("""
-            {
-              "air_temp": %f,
-              "process_temp": %f,
-              "speed": %f,
-              "torque": %f,
-              "tool_wear": %f,
-              "type": "%s"
-            }
-            """, airTemp, processTemp, speed, torque, toolWear, type);
+            String json = String.format(
+                "{\"air_temp\": %f, \"process_temp\": %f, \"speed\": %f, \"torque\": %f, \"tool_wear\": %f, \"type\": \"%s\"}",
+                airTemp, processTemp, speed, torque, toolWear, type
+            );
 
             URL url = new URL("http://127.0.0.1:5001/predict");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json");
+            conn.setRequestProperty("Content-Length", String.valueOf(json.length()));
             conn.setDoOutput(true);
+            conn.setConnectTimeout(5000);
+            conn.setReadTimeout(5000);
 
-            OutputStream os = conn.getOutputStream();
-            os.write(json.getBytes());
-            os.flush();
+            try (OutputStream os = conn.getOutputStream()) {
+                os.write(json.getBytes("UTF-8"));
+                os.flush();
+            }
 
-            BufferedReader br = new BufferedReader(
-                    new InputStreamReader(conn.getInputStream())
-            );
-
-            String response = br.readLine();
+            int responseCode = conn.getResponseCode();
+            String response;
+            
+            if (responseCode == 200) {
+                try (BufferedReader br = new BufferedReader(
+                        new InputStreamReader(conn.getInputStream()))) {
+                    response = br.readLine();
+                }
+            } else {
+                try (BufferedReader br = new BufferedReader(
+                        new InputStreamReader(conn.getErrorStream()))) {
+                    response = br.readLine();
+                }
+            }
 
             model.addAttribute("result", response);
 
@@ -83,13 +98,18 @@ public class MainController {
             history.add(response);
 
             // EXTRACT CONFIDENCE (simple parse)
-            if (response.contains("confidence")) {
-                String conf = response.split("confidence\":")[1].split(",")[0];
-                confidenceList.add(Double.parseDouble(conf));
+            if (response != null && response.contains("\"failure_confidence\"")) {
+                String conf = response.split("\"failure_confidence\":")[1].split(",")[0];
+                try {
+                    confidenceList.add(Double.parseDouble(conf));
+                } catch (NumberFormatException e) {
+                    // Skip if can't parse
+                }
             }
 
         } catch (Exception e) {
             model.addAttribute("result", "Error: " + e.getMessage());
+            e.printStackTrace();
         }
 
         model.addAttribute("history", history);

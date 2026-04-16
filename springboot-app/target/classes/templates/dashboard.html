@@ -2,122 +2,72 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Predictive Dashboard</title>
-
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: Arial;
-            background: #121826;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
             color: white;
-            text-align: center;
+            min-height: 100vh;
+            padding: 20px;
         }
-
-        .container {
-            width: 400px;
-            margin: auto;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 10px;
-            margin: 8px 0;
-            border-radius: 8px;
-            border: none;
-        }
-
-        button {
-            background: #00c853;
-            border: none;
-            padding: 10px 20px;
-            color: white;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-
-        .card {
-            background: #1f2937;
-            padding: 15px;
-            margin-top: 15px;
-            border-radius: 10px;
-        }
-
-        table {
-            width: 100%;
-            margin-top: 10px;
-            background: #1f2937;
-            border-radius: 10px;
-        }
-
-        td {
-            padding: 8px;
-        }
+        .container { max-width: 600px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 30px; padding: 20px; background: rgba(0, 200, 83, 0.1); border-radius: 10px; border: 2px solid #00c853; }
+        .card { background: rgba(31, 41, 55, 0.8); border: 1px solid #444; padding: 20px; margin: 15px 0; border-radius: 10px; }
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #555; background: rgba(255, 255, 255, 0.1); color: white; }
+        button { width: 100%; padding: 12px; background: linear-gradient(135deg, #00c853, #00a838); border: none; color: white; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        .result-item { padding: 12px; margin: 8px 0; border-left: 4px solid #00c853; background: rgba(20, 30, 40, 0.8); }
+        .result-item.failure { border-left-color: #ff6b6b; }
+        .status-badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 12px; margin-bottom: 8px; }
+        .status-high { background: #ff6b6b; }
+        .status-medium { background: #ffa500; }
+        .status-low { background: #00c853; }
+        table { width: 100%; font-size: 13px; }
+        td { padding: 6px; }
+        td:first-child { font-weight: bold; color: #00c853; width: 40%; }
+        .history-scroll { max-height: 300px; overflow-y: auto; border: 1px solid #444; border-radius: 6px; background: rgba(0, 0, 0, 0.3); padding: 10px; }
+        .no-data { text-align: center; color: #888; padding: 20px; }
+        h3 { margin-bottom: 15px; color: #00c853; }
     </style>
 </head>
-
 <body>
-
-<h2>Predictive Maintenance Dashboard</h2>
-
 <div class="container">
-
-<form action="/predict" method="post">
-    <input name="airTemp" placeholder="Air Temperature">
-    <input name="processTemp" placeholder="Process Temperature">
-    <input name="speed" placeholder="Speed">
-    <input name="torque" placeholder="Torque">
-    <input name="toolWear" placeholder="Tool Wear">
-
-    <select name="type">
-        <option value="L">Low</option>
-        <option value="M">Medium</option>
-        <option value="H">High</option>
-    </select>
-
-    <button type="submit">Predict</button>
-</form>
-
-<!-- RESULT -->
-<div class="card" th:if="${result}">
-    <h3>Prediction Result</h3>
-    <p th:text="${result}"></p>
+    <div class="header">
+        <h1>Predictive Maintenance Dashboard</h1>
+        <p>Real-time ML-powered failure prediction</p>
+    </div>
+    <div class="card">
+        <h3>Machine Parameters</h3>
+        <form method="post" action="/predict">
+            <input type="number" name="airTemp" placeholder="Air Temperature (295-305 K)" min="295" max="305" step="0.1" required>
+            <input type="number" name="processTemp" placeholder="Process Temperature (305-320 K)" min="305" max="320" step="0.1" required>
+            <input type="number" name="speed" placeholder="Rotational Speed (1168-9009 rpm)" min="1168" max="9009" step="1" required>
+            <input type="number" name="torque" placeholder="Torque (3.8-76.6 Nm)" min="3.8" max="76.6" step="0.1" required>
+            <input type="number" name="toolWear" placeholder="Tool Wear (0-254 min)" min="0" max="254" step="1" required>
+            <select name="type" required>
+                <option value="">-- Machine Type --</option>
+                <option value="L">Low Quality (L)</option>
+                <option value="M">Medium Quality (M)</option>
+                <option value="H">High Quality (H)</option>
+            </select>
+            <button type="submit">Predict Failure</button>
+        </form>
+    </div>
+    <div class="card" id="latestResultCard" style="display:none;">
+        <h3>Latest Result</h3>
+        <div id="latestResult"></div>
+    </div>
+    <div class="card">
+        <h3>Prediction History</h3>
+        <div class="history-scroll" id="historyList">
+            <div class="no-data">No predictions yet</div>
+        </div>
+    </div>
 </div>
-
-<!-- GRAPH -->
-<div class="card">
-    <h3>Confidence Trend</h3>
-    <canvas id="chart"></canvas>
-</div>
-
-<!-- HISTORY -->
-<div class="card">
-    <h3>Prediction History</h3>
-    <table>
-        <tr th:each="h : ${history}">
-            <td th:text="${h}"></td>
-        </tr>
-    </table>
-</div>
-
-</div>
-
+<script type="application/json" id="historyData" th:text="${history}">[]</script>
+<script type="application/json" id="resultData" th:text="${result}">null</script>
 <script>
-    let data = [[${confData}]];
-
-    const ctx = document.getElementById('chart');
-
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: data.map((_, i) => i+1),
-            datasets: [{
-                label: 'Confidence',
-                data: data
-            }]
-        }
-    });
+function decodeHtml(t){const e=document.createElement('textarea');return e.innerHTML=t,e.value}function parseData(t){try{return"string"==typeof t?JSON.parse(decodeHtml(t)):t}catch(e){return console.error('Parse error:',e),null}}function formatResult(t){const e=parseData(t);if(!e)return"";if(!e.success)return`<div class="result-item failure"><div class="status-badge status-high">❌ ERROR</div><table><tr><td>Error:</td><td>${e.error}</td></tr></table></div>`;const a=e.data,s=a.failure_predicted?"failure":"success",r="HIGH"===a.risk_level?"status-high":"MEDIUM"===a.risk_level?"status-medium":"status-low";return`<div class="result-item ${s}"><div class="status-badge ${r}">${a.failure_predicted?"⚠️ FAILURE":"✅ NO FAILURE"}</div><table><tr><td>Risk Level:</td><td><strong>${a.risk_level}</strong></td></tr><tr><td>Confidence:</td><td>${(100*a.failure_confidence).toFixed(1)}%</td></tr><tr><td>Fault Type:</td><td>${a.fault_type}</td></tr><tr><td>Recommendation:</td><td>${a.recommendations[0]}</td></tr></table></div>`}function renderHistory(){const t=parseData(document.getElementById("historyData").textContent);if(!t||0===t.length)return;const e=document.getElementById("historyList");e.innerHTML="",t.forEach((t,a)=>{const s=parseData(t);if(s&&s.success&&s.data){const r=s.data,i=new Date(s.timestamp).toLocaleTimeString(),d=r.failure_predicted?"failure":"success",l="HIGH"===r.risk_level?"status-high":"MEDIUM"===r.risk_level?"status-medium":"status-low";e.innerHTML+=`<div class="result-item ${d}"><div style="display:flex; justify-content:space-between; margin-bottom:6px;"><span class="status-badge ${l}">${r.failure_predicted?"⚠️ FAIL":"✅ OK"}</span><span style="font-size:11px; color:#888;">#${a+1} ${i}</span></div><table><tr><td>Risk:</td><td>${r.risk_level}</td></tr><tr><td>Confidence:</td><td>${(100*r.failure_confidence).toFixed(1)}%</td></tr><tr><td>Fault:</td><td>${r.fault_type}</td></tr></table></div>`}})}function renderLatestResult(){const t=parseData(document.getElementById("resultData").textContent);t&&(document.getElementById("latestResultCard").style.display="block",document.getElementById("latestResult").innerHTML=formatResult(JSON.stringify(t)))}document.addEventListener("DOMContentLoaded",()=>{renderLatestResult(),renderHistory()}),setInterval(()=>{parseData(document.getElementById("resultData").textContent)&&renderLatestResult()},2e3);
 </script>
-
 </body>
 </html>
