@@ -1,4 +1,4 @@
-# 🚀 Predictive Maintenance System - Industrial Machine AI
+# Predictive Maintenance System - Industrial Machine AI
 
 Complete production-ready predictive maintenance system with ML backend and Java UI.
 
@@ -21,7 +21,7 @@ python ml_model_train_improved.py
 cd /Users/tanishagupta/predictive_maintenance_api\ copy/ml_api
 cp ../ml_utils.py . && python app_improved.py
 ```
-✅ API running on http://localhost:5001
+API running on http://localhost:5001
 
 **Terminal 3: Build & Launch Web UI (Spring Boot) - First time only**
 ```bash
@@ -29,17 +29,17 @@ cd /Users/tanishagupta/predictive_maintenance_api\ copy/springboot-app
 mvn clean package -DskipTests -q
 java -jar target/demo-0.0.1-SNAPSHOT.jar
 ```
-✅ Web UI opens on http://localhost:8080
+Web UI opens on http://localhost:8080
 
 **Terminal 4: Verify**
 ```bash
 curl http://localhost:5001/health
 ```
-✅ Should show: `"status": "healthy"`
+Should show: `"status": "healthy"`
 
 ---
 
-## 📊 System Overview
+## System Overview
 
 ```
 ┌─────────────────────────────────────────┐
@@ -65,12 +65,12 @@ curl http://localhost:5001/health
 
 ---
 
-## 📁 Project Files
+## Project Files
 
 ### Essential Files
 - **`ml_utils.py`** - Shared utilities
 - **`ml_model_train_improved.py`** - Training script
-- **`ml_api/app_improved.py`** - API server ⭐
+- **`ml_api/app_improved.py`** - API server 
 - **`requirements.txt`** - Python dependencies
 - **`models/`** - Trained models (8 files, 7.4 MB)
 
@@ -87,20 +87,20 @@ curl http://localhost:5001/health
 
 ---
 
-## 🎯 Features
+## Features
 
-✅ **ML Models**
+**ML Models**
 - Failure prediction: 98.1% accuracy
 - Fault classification: 87.1% accuracy
 - Real-time predictions: <50ms per request
 
-✅ **API**
+ **API**
 - Prediction endpoints (single & batch)
 - Health checks
 - Input validation
 - Comprehensive logging
 
-✅ **Java UI**
+**Java UI**
 - Desktop application (JavaFX)
 - Web interface (Spring Boot)
 - Servlet-based option
@@ -108,7 +108,7 @@ curl http://localhost:5001/health
 
 ---
 
-## 🔗 API Endpoints
+## API Endpoints
 
 ### Single Prediction
 ```bash
@@ -142,7 +142,7 @@ GET http://localhost:5001/info
 
 ---
 
-## 📊 Model Performance
+## Model Performance
 
 | Metric | Value |
 |--------|-------|
@@ -159,7 +159,7 @@ GET http://localhost:5001/info
 
 ---
 
-## 🛠️ Valid Input Ranges
+## Valid Input Ranges
 
 - **Air Temperature:** 295-305 K
 - **Process Temperature:** 305-320 K
@@ -170,7 +170,7 @@ GET http://localhost:5001/info
 
 ---
 
-## 🔄 Restart Procedure
+## Restart Procedure
 
 ### After Initial Setup
 ```bash
@@ -198,7 +198,7 @@ mvn clean package -DskipTests
 
 ---
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### API won't start
 ```bash
@@ -246,7 +246,7 @@ java -jar target/demo-0.0.1-SNAPSHOT.jar
 
 ---
 
-## 📚 Documentation Files
+## Documentation Files
 
 | File | Purpose |
 |------|---------|
@@ -258,7 +258,7 @@ java -jar target/demo-0.0.1-SNAPSHOT.jar
 
 ---
 
-## ✨ Technology Stack
+## Technology Stack
 
 - **Backend:** Python, Flask, scikit-learn
 - **ML:** Random Forest, GridSearchCV
@@ -267,7 +267,7 @@ java -jar target/demo-0.0.1-SNAPSHOT.jar
 
 ---
 
-## 📈 Performance Specs
+## Performance Specs
 
 - **Training Time:** 2-3 minutes (first time)
 - **Prediction Latency:** <50ms (single)
@@ -276,7 +276,7 @@ java -jar target/demo-0.0.1-SNAPSHOT.jar
 
 ---
 
-## 🎓 Model Details
+## Model Details
 
 ### Failure Prediction
 - Algorithm: Random Forest (200 trees)
@@ -290,7 +290,7 @@ java -jar target/demo-0.0.1-SNAPSHOT.jar
 
 ---
 
-## 🚀 Deployment Options
+## Deployment Options
 
 ### Development (Current)
 ```bash
@@ -311,7 +311,7 @@ docker run -p 5001:5001 predictive-maintenance
 
 ---
 
-## 📞 Support
+## Support
 
 - Check documentation files
 - Review API logs in terminal
@@ -320,17 +320,17 @@ docker run -p 5001:5001 predictive-maintenance
 
 ---
 
-## ✅ Status
+## Status
 
 - **Version:** 1.0
-- **Status:** ✅ Production Ready
+- **Status:** Production Ready
 - **Last Updated:** April 14, 2026
-- **Tested:** ✅ Yes
-- **Deployed:** ✅ Yes
+- **Tested:** Yes
+- **Deployed:** Yes
 
 ---
 
-## 🎯 Next Steps
+## Next Steps
 
 1. Follow QUICK START above
 2. Train models (Terminal 1)
@@ -340,4 +340,4 @@ docker run -p 5001:5001 predictive-maintenance
 
 ---
 
-**Ready to use!** 🎉
+**Ready to use!** 
